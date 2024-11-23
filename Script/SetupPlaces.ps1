@@ -219,20 +219,15 @@ function Add-Desks {
 
 Add-Desks -desks $desks -buildingId $buildingId
 
-
-#Places - Workspaces
+# Configure places which we could not do at time of creation because of Exchange Timeout. 
+# Places - Workspaces
 foreach ($workspace in $workspaces) {
-    #    $mailbox = New-Mailbox -Room -Alias $workspace.Alias -Name $workspace.Name | Set-Mailbox -Type Workspace
-    #    Set-MailboxCalendarConfiguration -Identity $workspace.Alias -WorkingHoursTimeZone $workspace.TimeZone -WorkingHoursStartTime $workspace.WorkingHoursStartTime
-    #    Set-CalendarProcessing -Identity $workspace.Alias -EnforceCapacity $True -AllowConflicts $true
     $workspaceId = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq $workspace.SectionName).PlaceId    
     Set-PlaceV3 -Identity $workspace.Alias -Capacity $workspace.Capacity -Label $workspace.Name -FloorLabel $workspace.FloorLabel -IsWheelChairAccessible $True -Tags $workspace.Tags -ParentId $workspaceId
 }
 
 # Places - Conference Rooms
 foreach ($room in $rooms) {
-    #    $mailbox = New-Mailbox -Room -Alias $room.Alias -Name $room.Name
-    #    Set-CalendarProcessing -Identity $room.Alias -AutomateProcessing AutoAccept -AddOrganizerToSubject $false -AllowRecurringMeetings $true -DeleteAttachments $true -DeleteComments $false -DeleteSubject $false -ProcessExternalMeetingMessages $true -RemovePrivateProperty $false -AddAdditionalResponse $true -AdditionalResponse $room.AdditionalResponse
     $roomId = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq $room.name).PlaceId    
     Set-PlaceV3 -Identity $room.Alias -Capacity $room.Capacity -Label $room.Name -FloorLabel $room.FloorLabel -IsWheelChairAccessible $True -Tags $room.Tags -ParentId $roomId
 }
