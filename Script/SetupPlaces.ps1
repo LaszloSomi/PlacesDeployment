@@ -4,7 +4,9 @@
 
   .DESCRIPTION
 
-Coming....
+This script will create places based on a single building with multiple floors, sections, workspaces, rooms, and desks. 
+The script will import the data from CSV files and create the places in Exchange Online and Microsoft Places. 
+The script will also validate the data before creating the places.
 
   .EXAMPLE
 Coming.....
