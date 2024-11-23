@@ -1,0 +1,17 @@
+Alias,Name,Capacity,FloorLabel,SectionName,ParentId,Tags,TimeZone,WorkingHoursStartTime
+wksp-hq-2.160,Workspace HQ/2.160,17,2,HQ.2.SouthWest,$sectionSW2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-2.100,Workspace HQ/2.100,21,2,HQ.2.SouthWest,$sectionSW2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-2.200,Workspace HQ/2.200,16,2,HQ.2.South,$sectionS2,"Monitor,Docking Station","Pacific Standard Time",09:00:00 
+wksp-hq-2.250,Workspace HQ/2.250,25,2,HQ.2.SouthEast,$sectionSE2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-2.400,Workspace HQ/2.400,14,2,HQ.2.North,$sectionN2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-2.450,Workspace HQ/2.450,23,2,HQ.2.NorthWest,$sectionNW2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-2.370,Workspace HQ/2.370,17,2,HQ.2.NorthEast,$sectionNE2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-2.300,Workspace HQ/2.300,21,2,HQ.2.NorthEast,$sectionNE2,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-1.200,Workspace HQ/1.200,16,1,HQ.1.South,$sectionS1,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-1.100,Workspace HQ/1.100,20,1,HQ.1.SouthWest,$sectionSW1,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-1.250,Workspace HQ/1.250,25,1,HQ.1.SouthEast,$sectionSE1,"Monitor,Docking Station","Pacific Standard Time",09:00:00
+wksp-hq-1.300,Workspace HQ/1.300,28,1,HQ.1.NorthEast,$sectionNE1,"Monitor,Docking Station","Pacific Standard Time",09:00:00 
+wksp-hq-1.400,Workspace HQ/1.400,12,1,HQ.1.North,$sectionN1,"Monitor,Docking Station","Pacific Standard Time",09:00:00 
+wksp-hq-1.360,Workspace HQ/1.360,17,1,HQ.1.NorthEast,$sectionNE1,"Monitor,Docking Station","Pacific Standard Time",09:00:00 
+wksp-hq-1.450,Workspace HQ/1.450,23,1,HQ.1.NorthWest,$sectionNW1,"Monitor,Docking Station","Pacific Standard Time",09:00:00 
+wksp-hq-1.160,Workspace HQ/1.160,17,1,HQ.1.SouthWest,$sectionSW1,"Monitor,Docking Station,Mouse","Pacific Standard Time",09:00:00 

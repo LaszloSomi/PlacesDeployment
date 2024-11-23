@@ -1,0 +1,13 @@
+BuildingName,FloorName,SectionName
+Contoso HQ,1,HQ.1.SouthWest
+Contoso HQ,1,HQ.1.NorthWest
+Contoso HQ,1,HQ.1.NorthEast
+Contoso HQ,1,HQ.1.SouthEast
+Contoso HQ,2,HQ.2.SouthWest
+Contoso HQ,2,HQ.2.NorthWest
+Contoso HQ,2,HQ.2.NorthEast
+Contoso HQ,2,HQ.2.SouthEast
+Contoso HQ,1,HQ.1.North
+Contoso HQ,1,HQ.1.South
+Contoso HQ,2,HQ.2.North
+Contoso HQ,2,HQ.2.South
