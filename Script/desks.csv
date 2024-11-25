@@ -1,8 +1,8 @@
-Alias,Name,SectionName,ParentId,Tags
-office-hq-1.190,Office HQ/1.190,HQ.1.SouthWest,$sectionSW1,"Office,Monitor,Docking Station,Height Adjustable Desk"
-office-hq-1.390,Office HQ/1.390,HQ.1.NorthWest,$sectionNE1,"Office,Monitor,Docking Station,Height Adjustable Desk"
-office-hq-1.266,Office HQ/1.266,HQ.1.SouthEast,$sectionSE1,"Office,Monitor,Docking Station,Height Adjustable Desk"
-office-hq-1.480,Office HQ/1.480,HQ.1.NorthWest,$sectionNW1,"Office,Monitor,Docking Station,Height Adjustable Desk"
-office-hq-2.190,Office HQ/2.190,HQ.2.SouthWest,$sectionSW2,"Office,Monitor,Docking Station,Height Adjustable Desk"
-office-hq-2.390,Office HQ/2.390,HQ.2.NorthEast,$sectionNE2,"Office,Monitor,Docking Station,Height Adjustable Desk"
-office-hq-2.266,Office HQ/2.266,HQ.2.SouthEast,$sectionSE2,"Office,Monitor,Docking Station,Height Adjustable Desk"
+Alias,Name,SectionName,Tags
+office-hq-1.190,Office HQ/1.190,HQ.1.SouthWest,"Office,Monitor,Docking Station,Height Adjustable Desk"
+office-hq-1.390,Office HQ/1.390,HQ.1.NorthWest,"Office,Monitor,Docking Station,Height Adjustable Desk"
+office-hq-1.266,Office HQ/1.266,HQ.1.SouthEast,"Office,Monitor,Docking Station,Height Adjustable Desk"
+office-hq-1.480,Office HQ/1.480,HQ.1.NorthWest,"Office,Monitor,Docking Station,Height Adjustable Desk"
+office-hq-2.190,Office HQ/2.190,HQ.2.SouthWest,"Office,Monitor,Docking Station,Height Adjustable Desk"
+office-hq-2.390,Office HQ/2.390,HQ.2.NorthEast,"Office,Monitor,Docking Station,Height Adjustable Desk"
+office-hq-2.266,Office HQ/2.266,HQ.2.SouthEast,"Office,Monitor,Docking Station,Height Adjustable Desk"

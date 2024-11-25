@@ -2,6 +2,7 @@
   .SYNOPSIS
   
   The CleanupPlace.ps1 script uses the exported files to remove a single building and all associated floors, sections, workspaces, rooms, desks, and mailboxes.
+  
   It is a non-reversible action! Make sure you understand the ramifications of running this script before proceeding.
 
   .DESCRIPTION
@@ -33,11 +34,90 @@ $buildingName = "Contoso HQ"
 ********************************************************************************************************************
 #>
 
+# Prompt user for confirmation
+function Confirm-Deletion {
+    param (
+        [string]$buildingName
+    )
+
+    $confirmation = Read-Host "This action is destructive and will delete all objects in the tenant associated with '$buildingName'. This action is also not reversible. Type 'Yes' to continue"
+
+    if ($confirmation -ne "Yes") {
+        Write-Host "Operation cancelled by user." -ForegroundColor Red
+        exit
+    }
+}
+
+Confirm-Deletion -buildingName $buildingName
+
+# Check if exported files exist
+$scriptDir = get-location
+$requiredFiles = @("exported_building.csv", "exported_floors.csv", "exported_sections.csv", "exported_workspaces.csv", "exported_rooms.csv", "exported_desks.csv")
+function Test-ExportedFiles {
+    param (
+        [string]$scriptDir,
+        [string[]]$requiredFiles
+    )
+
+    $missingFiles = @()
+
+    foreach ($file in $requiredFiles) {
+        if (-not (Test-Path -Path (Join-Path -Path $scriptDir -ChildPath $file))) {
+            $missingFiles += $file
+        }
+    }
+
+    if ($missingFiles.Count -gt 0) {
+        Write-Host "The following required files are missing: $($missingFiles -join ', ')" -ForegroundColor Red
+        Write-Host "Please run the ExportBuilding.ps1 script to generate the required files." -ForegroundColor Red
+        exit
+    }
+}
+
+Test-ExportedFiles -scriptDir $scriptDir -requiredFiles $requiredFiles
+$missingFiles = @()
+
+
+
 
 ## Requirement: Use Windows PowerShell 7
 ## Connecting to Exchange & Places
-Connect-ExchangeOnline
-Connect-MicrosoftPlaces
+function Test-Connections {
+    $exchangeConnection = Get-Module -Name ExchangeOnlineManagement -ListAvailable
+    $placesConnection = Get-Module -Name MicrosoftPlaces -ListAvailable
+
+    if (-not $exchangeConnection) {
+        Write-Error "The ExchangeOnlineManagement module is not installed. Please install it using Install-Module -Name ExchangeOnlineManagement."
+        exit
+    } else {
+        Write-Output "ExchangeOnline module found"
+    }
+
+    if (-not $placesConnection) {
+        Write-Error "The MicrosoftPlaces module is not installed. Please install it using Install-Module -Name MicrosoftPlaces."
+        exit
+    } else {
+        Write-Output "MicrosoftPlaces module found"
+    }
+
+    try {
+        Get-EXORecipient -ResultSize 1 -WarningAction SilentlyContinue | Out-Null
+        Write-Output "Connected to ExchangeOnline, we are good to go"
+    } catch {
+        Write-Error "You are not connected to Exchange Online. Please connect using Connect-ExchangeOnline."
+        exit
+    }
+
+    try {
+        Get-PlaceV3 -ResultSize 1 -WarningAction SilentlyContinue | Out-Null
+        Write-Output "Connected to MicrosoftPlaces, we are good to go"
+    } catch {
+        Write-Error "You are not connected to Microsoft Places. Please connect using Connect-MicrosoftPlaces."
+        exit
+    }
+}
+
+Test-Connections
 
 
 # Get the building ID
