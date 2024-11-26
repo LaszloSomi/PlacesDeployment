@@ -27,10 +27,10 @@ Coming.....
 ********************************************************************************************************************
 #>
 
+#Region - Functions
 
 ## Requirement: Use Windows PowerShell 7
 ## Testing if modules are installed and user connected to Exchange & Places
-
 function Test-Connections {
     $exchangeConnection = Get-Module -Name ExchangeOnlineManagement -ListAvailable
     $placesConnection = Get-Module -Name MicrosoftPlaces -ListAvailable
@@ -38,21 +38,24 @@ function Test-Connections {
     if (-not $exchangeConnection) {
         Write-Error "The ExchangeOnlineManagement module is not installed. Please install it using Install-Module -Name ExchangeOnlineManagement."
         exit
-    } else {
+    }
+    else {
         Write-Output "ExchangeOnline module found"
     }
 
     if (-not $placesConnection) {
         Write-Error "The MicrosoftPlaces module is not installed. Please install it using Install-Module -Name MicrosoftPlaces."
         exit
-    } else {
+    }
+    else {
         Write-Output "MicrosoftPlaces module found"
     }
 
     try {
         Get-EXORecipient -ResultSize 1 -WarningAction SilentlyContinue | Out-Null
         Write-Output "Connected to ExchangeOnline, we are good to go"
-    } catch {
+    }
+    catch {
         Write-Error "You are not connected to Exchange Online. Please connect using Connect-ExchangeOnline."
         exit
     }
@@ -60,26 +63,14 @@ function Test-Connections {
     try {
         Get-PlaceV3 -ResultSize 1 -WarningAction SilentlyContinue | Out-Null
         Write-Output "Connected to MicrosoftPlaces, we are good to go"
-    } catch {
+    }
+    catch {
         Write-Error "You are not connected to Microsoft Places. Please connect using Connect-MicrosoftPlaces."
         exit
     }
 }
 
-Test-Connections
-
-# Import CSV files
-$buildings = Import-Csv -Path "buildings.csv"
-$floors = Import-Csv -Path "floors.csv"
-$sections = Import-Csv -Path "sections.csv"
-$workspaces = Import-Csv -Path "workspaces.csv"
-$rooms = Import-Csv -Path "rooms.csv"
-$desks = Import-Csv -Path "desks.csv"
-
-
 # Validatation function for SectionNamessv
-$sectionNames = $sections.SectionName
-
 function Test-SectionNames {
     param (
         [Parameter(Mandatory = $true)]
@@ -97,13 +88,6 @@ function Test-SectionNames {
     }
 }
 
-# Validate section names in workspaces.csv
-Test-SectionNames -items $workspaces -sectionNames $sectionNames -itemType "workspaces.csv"
-
-# Validate section names in desks.csv
-Test-SectionNames -items $desks -sectionNames $sectionNames -itemType "desks.csv"
-
-
 # Create Workspaces
 function Add-WorkSpaces {
     param (
@@ -120,18 +104,15 @@ function Add-WorkSpaces {
     }
 }
 
-Add-WorkSpaces -workspaces $workspaces
-
-
 # Create Rooms
 function Add-Rooms {
     param (
         [Parameter(Mandatory = $true)]
         [array]$rooms
     )
-## Create Rooms
+    ## Create Rooms
     foreach ($room in $rooms) {
-    New-Mailbox -Room -Alias $room.Alias -Name $room.Name
+        New-Mailbox -Room -Alias $room.Alias -Name $room.Name
         Set-CalendarProcessing -Identity $room.Alias `
             -AutomateProcessing AutoAccept `
             -AddOrganizerToSubject $false `
@@ -147,9 +128,6 @@ function Add-Rooms {
         #Set-PlaceV3 -Identity $room.Alias -Capacity $room.Capacity -Label $room.Name -FloorLabel $room.FloorLabel -IsWheelChairAccessible $True -Tags $room.Tags -ParentId $roomId
     }
 }
-
-Add-Rooms -rooms $rooms
-
 
 # Create Buildings and Floors
 function Add-Buildings {
@@ -171,13 +149,6 @@ function Add-Buildings {
     }
 }
 
-Add-Buildings -buildings $buildings -floors $floors
-
-# Get building ID
-$buildingId = (Get-PlaceV3 -Type Building | Where-Object -Property DisplayName -eq $buildings.name).PlaceId
-#$contosol1 = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq '1').PlaceId
-#$contosol2 = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq '2').PlaceId
-
 # Create Sections on each floor
 function Add-Sections {
     param (
@@ -192,9 +163,6 @@ function Add-Sections {
         New-Place -Type Section -Name $section.SectionName -ParentId $floorId
     }
 }
-
-Add-Sections -sections $sections -buildingId $buildingId
-
 
 # Create Desks
 function Add-Desks {
@@ -217,6 +185,45 @@ function Add-Desks {
     }
 }
 
+#endregion - Functions
+
+#Check for connection to Exchange and Places
+Test-Connections
+
+# Import CSV files
+$buildings = Import-Csv -Path "buildings.csv"
+$floors = Import-Csv -Path "floors.csv"
+$sections = Import-Csv -Path "sections.csv"
+$workspaces = Import-Csv -Path "workspaces.csv"
+$rooms = Import-Csv -Path "rooms.csv"
+$desks = Import-Csv -Path "desks.csv"
+
+
+# Validatation Section names in Workspaces and desks
+$sectionNames = $sections.SectionName
+Test-SectionNames -items $workspaces -sectionNames $sectionNames -itemType "workspaces.csv"
+Test-SectionNames -items $desks -sectionNames $sectionNames -itemType "desks.csv"
+
+# Create Workspaces
+Add-WorkSpaces -workspaces $workspaces
+
+# Create Rooms
+Add-Rooms -rooms $rooms
+
+
+# Create Buildings and Floors
+Add-Buildings -buildings $buildings -floors $floors
+
+# Get building ID
+$buildingId = (Get-PlaceV3 -Type Building | Where-Object -Property DisplayName -eq $buildings.name).PlaceId
+#$contosol1 = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq '1').PlaceId
+#$contosol2 = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq '2').PlaceId
+
+# Create Sections on each floor
+Add-Sections -sections $sections -buildingId $buildingId
+
+
+# Create Desks
 Add-Desks -desks $desks -buildingId $buildingId
 
 # Configure places which we could not do at time of creation because of Exchange Timeout. 

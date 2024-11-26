@@ -159,13 +159,13 @@ foreach ($workspace in $workspaces) {
 }
 
 # Remove Sections
-$sections = Get-PlaceV3 -AncestorId $buildingId -Type Section
+$sections = Get-Placev3 -AncestorId $buildingId -Type Section
 foreach ($section in $sections) {
-    Remove-PlaceV3 -Identity $section.PlaceId -Confirm:$false
+    Remove-Place -Identity $section.PlaceId -Confirm:$false
 }
 
 # Remove Floors
-$floors = Get-PlaceV3 -AncestorId $buildingId -Type Floor
+$floors = Get-Place -AncestorId $buildingId -Type Floor
 foreach ($floor in $floors) {
     Remove-Place -Identity $floor.PlaceId -Confirm:$false
 }
