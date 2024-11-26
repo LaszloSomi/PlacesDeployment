@@ -185,6 +185,38 @@ function Add-Desks {
     }
 }
 
+# Configure places which we could not do at time of creation because of Exchange Timeout. 
+# Places - Workspaces
+function Update-Workspaces {
+    param (
+        [Parameter(Mandatory = $true)]
+        [array]$workspaces,
+        [Parameter(Mandatory = $true)]
+        [string]$buildingId
+    )
+
+    foreach ($workspace in $workspaces) {
+        $workspaceId = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq $workspace.SectionName).PlaceId    
+        Set-PlaceV3 -Identity $workspace.Alias -Capacity $workspace.Capacity -Label $workspace.Name -FloorLabel $workspace.FloorLabel -IsWheelChairAccessible $True -Tags $workspace.Tags -ParentId $workspaceId
+    }
+}
+
+# Configure places which we could not do at time of creation because of Exchange Timeout.
+# Places - Rooms
+function Update-Rooms {
+    param (
+        [Parameter(Mandatory = $true)]
+        [array]$rooms,
+        [Parameter(Mandatory = $true)]
+        [string]$buildingId
+    )
+
+    foreach ($room in $rooms) {
+        $roomId = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq $room.Name).PlaceId    
+        Set-PlaceV3 -Identity $room.Alias -Capacity $room.Capacity -Label $room.Name -FloorLabel $room.FloorLabel -IsWheelChairAccessible $True -Tags $room.Tags -ParentId $roomId
+    }
+}
+
 #endregion - Functions
 
 #Check for connection to Exchange and Places
@@ -228,14 +260,8 @@ Add-Desks -desks $desks -buildingId $buildingId
 
 # Configure places which we could not do at time of creation because of Exchange Timeout. 
 # Places - Workspaces
-foreach ($workspace in $workspaces) {
-    $workspaceId = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq $workspace.SectionName).PlaceId    
-    Set-PlaceV3 -Identity $workspace.Alias -Capacity $workspace.Capacity -Label $workspace.Name -FloorLabel $workspace.FloorLabel -IsWheelChairAccessible $True -Tags $workspace.Tags -ParentId $workspaceId
-}
+Update-Workspaces -workspaces $workspaces -buildingId $buildingId
 
-# Places - Conference Rooms
-foreach ($room in $rooms) {
-    $roomId = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq $room.name).PlaceId    
-    Set-PlaceV3 -Identity $room.Alias -Capacity $room.Capacity -Label $room.Name -FloorLabel $room.FloorLabel -IsWheelChairAccessible $True -Tags $room.Tags -ParentId $roomId
-}
+# Update Rooms
+Update-Rooms -rooms $rooms -buildingId $buildingId
 
