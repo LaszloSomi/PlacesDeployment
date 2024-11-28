@@ -34,6 +34,8 @@ $buildingName = "Contoso HQ"
 ********************************************************************************************************************
 #>
 
+#region for functions
+
 # Prompt user for confirmation
 function Confirm-Deletion {
     param (
@@ -48,11 +50,78 @@ function Confirm-Deletion {
     }
 }
 
-Confirm-Deletion -buildingName $buildingName
+#Remove Sections anf floors
+function Remove-SectionsAndFloors {
+  param (
+    [string]$csvPath
+  )
+
+  $data = Import-Csv -Path $csvPath
+
+  # Remove sections
+  $sections = $data | Where-Object { $_.Type -eq "Section" }
+  foreach ($section in $sections) {
+    Remove-Place -Identity $section.PlaceId
+  }
+  Write-Output "Sections removed."
+
+  # Remove floors
+  $floors = $data | Where-Object { $_.Type -eq "Floor" }
+  foreach ($floor in $floors) {
+    Remove-Place -Identity $floor.PlaceId
+  }
+  Write-Output "Floors removed."
+}
+
+# Remove desks, rooms, and spaces
+function Remove-DesksRoomsSpaces {
+  param (
+    [string]$csvPath
+  )
+
+  $data = Import-Csv -Path $csvPath
+
+  # Remove desks
+  $desks = $data | Where-Object { $_.Type -eq "Desk" }
+  foreach ($desk in $desks) {
+    Remove-Place -Identity $desk.PlaceId
+  }
+  Write-Output "Desks removed."
+ 
+  # Remove spaces
+  $spaces = $data | Where-Object { $_.Type -eq "space" }
+  foreach ($space in $spaces) {
+    Remove-Place -Identity $space.PlaceId
+  }
+  Write-Output "Spaces removed."
+  
+  # Remove rooms
+  $rooms = $data | Where-Object { $_.Type -eq "Room" }
+  foreach ($room in $rooms) {
+    Remove-Place -Identity $room.PlaceId
+  }
+  Write-Output "Rooms removed."
+
+}
+
+# Remove mailboxes associated with desks, rooms, and spaces
+function Remove-Mailboxes {
+  param (
+    [string]$csvPath
+  )
+
+  $data = Import-Csv -Path $csvPath
+
+  # Get mailboxes associated with desks, rooms, and spaces
+  $mailboxIds = $data | Where-Object { $_.Type -in @("Desk", "Room", "space") } | Select-Object -ExpandProperty MailboxOID
+
+  foreach ($mailboxId in $mailboxIds) {
+    Remove-Mailbox -Identity $mailboxId -Confirm:$false
+  }
+  Write-Output "Mailboxes removed."
+}
 
 # Check if exported files exist
-$scriptDir = get-location
-$requiredFiles = @("exported_building.csv", "exported_floors.csv", "exported_sections.csv", "exported_workspaces.csv", "exported_rooms.csv", "exported_desks.csv")
 function Test-ExportedFiles {
     param (
         [string]$scriptDir,
@@ -74,103 +143,38 @@ function Test-ExportedFiles {
     }
 }
 
+
+
+#endregion
+
+
+
+
+# Confirm deletion
+Confirm-Deletion -buildingName $buildingName
+
+# Check if exported files exist
+$scriptDir = get-location
+$requiredFiles = @("exported_building.csv")
+
 Test-ExportedFiles -scriptDir $scriptDir -requiredFiles $requiredFiles
 $missingFiles = @()
 
 
+# Remove sections and floors
+Remove-SectionsAndFloors -csvPath "exported_building.csv"
+
+# Remove desks, rooms, and spaces
+Remove-DesksRoomsSpaces -csvPath "exported_building.csv"
+
+# Remove mailboxes
+Remove-Mailboxes -csvPath "exported_building.csv"
 
 
-## Requirement: Use Windows PowerShell 7
-## Connecting to Exchange & Places
-function Test-Connections {
-    $exchangeConnection = Get-Module -Name ExchangeOnlineManagement -ListAvailable
-    $placesConnection = Get-Module -Name MicrosoftPlaces -ListAvailable
 
-    if (-not $exchangeConnection) {
-        Write-Error "The ExchangeOnlineManagement module is not installed. Please install it using Install-Module -Name ExchangeOnlineManagement."
-        exit
-    } else {
-        Write-Output "ExchangeOnline module found"
-    }
 
-    if (-not $placesConnection) {
-        Write-Error "The MicrosoftPlaces module is not installed. Please install it using Install-Module -Name MicrosoftPlaces."
-        exit
-    } else {
-        Write-Output "MicrosoftPlaces module found"
-    }
 
-    try {
-        Get-EXORecipient -ResultSize 1 -WarningAction SilentlyContinue | Out-Null
-        Write-Output "Connected to ExchangeOnline, we are good to go"
-    } catch {
-        Write-Error "You are not connected to Exchange Online. Please connect using Connect-ExchangeOnline."
-        exit
-    }
-
-    try {
-        Get-PlaceV3 -ResultSize 1 -WarningAction SilentlyContinue | Out-Null
-        Write-Output "Connected to MicrosoftPlaces, we are good to go"
-    } catch {
-        Write-Error "You are not connected to Microsoft Places. Please connect using Connect-MicrosoftPlaces."
-        exit
-    }
+$allspace = get-placev3 -Type space
+foreach ($space in $allspace) {
+    Remove-Place -Identity $space.Identity
 }
-
-Test-Connections
-
-
-# Get the building ID
-$building = Get-PlaceV3 -Type Building | Where-Object { $_.DisplayName -eq $buildingName }
-if (-not $building) {
-    Write-Error "Building '$buildingName' not found."
-    exit
-}
-$buildingId = $building.PlaceId
-
-# Remove Desks
-$desks = Get-PlaceV3 -AncestorId $buildingId -Type Desk
-foreach ($desk in $desks) {
-    Remove-Place -Identity $desk.PlaceId -Confirm:$false
-    $mailbox = Get-Mailbox -RecipientTypeDetails RoomMailbox | Where-Object { $_.DisplayName -eq $desk.DisplayName }
-    if ($mailbox) {
-        Remove-Mailbox -Identity $mailbox.Alias -Confirm:$false
-    }
-}
-
-# Remove Rooms
-$rooms = Get-PlaceV3 -AncestorId $buildingId -Type Room
-foreach ($room in $rooms) {
-    Remove-Place -Identity $room.PlaceId -Confirm:$false
-    $mailbox = Get-Mailbox -RecipientTypeDetails RoomMailbox | Where-Object { $_.DisplayName -eq $room.DisplayName }
-    if ($mailbox) {
-        Remove-Mailbox -Identity $mailbox.Alias -Confirm:$false
-    }
-}
-
-# Remove Workspaces
-$workspaces = Get-PlaceV3 -ParentId $buildingId -Type space
-foreach ($workspace in $workspaces) {
-    Remove-Place -Identity $workspace.PlaceId -Confirm:$false
-    $mailbox = Get-Mailbox -RecipientTypeDetails RoomMailbox | Where-Object { $_.DisplayName -eq $workspace.DisplayName }
-    if ($mailbox) {
-        Remove-Mailbox -Identity $mailbox.Alias -Confirm:$false
-    }
-}
-
-# Remove Sections
-$sections = Get-Placev3 -AncestorId $buildingId -Type Section
-foreach ($section in $sections) {
-    Remove-Place -Identity $section.PlaceId -Confirm:$false
-}
-
-# Remove Floors
-$floors = Get-Place -AncestorId $buildingId -Type Floor
-foreach ($floor in $floors) {
-    Remove-Place -Identity $floor.PlaceId -Confirm:$false
-}
-
-# Remove Building
-Remove-Place -Identity $buildingId -Confirm:$false
-
-Write-Output "Deletion completed. All objects associated with the building '$buildingName' have been removed."
