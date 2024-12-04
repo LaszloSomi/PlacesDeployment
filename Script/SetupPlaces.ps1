@@ -248,8 +248,6 @@ Add-Buildings -buildings $buildings -floors $floors
 
 # Get building ID
 $buildingId = (Get-PlaceV3 -Type Building | Where-Object -Property DisplayName -eq $buildings.name).PlaceId
-#$contosol1 = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq '1').PlaceId
-#$contosol2 = (Get-PlaceV3 -AncestorId $buildingId | Where-Object -Property DisplayName -eq '2').PlaceId
 
 # Create Sections on each floor
 Add-Sections -sections $sections -buildingId $buildingId
